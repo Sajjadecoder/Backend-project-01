@@ -1,38 +1,30 @@
 import mongoose from "mongoose";
 import { DB_NAME } from "./constants.js";
-import express from "express";
+import { app } from "./app.js";
 import dotenv from "dotenv";
-import cors from "cors";
-import cookieParser from "cookie-parser";
 
+// Load environment variables
+dotenv.config();
 
-dotenv.config({
-    path: './.env'
-});
-
-const app = express();
-
-app.use(cors(
-    {
-        origin:'*',
-        credentials: true
-    }
-))
-app.use(express.json({limit: '16kb'})); // will accept only json data upto 16kb
-app.use(express.urlencoded());
-app.use(express.static('public'));// allow temporary storage of files in public folder
-app.use(cookieParser());
-(async()=>{
+(async () => {
     try {
-        console.log('' + process.env.MONGODB_URL)
-        const connectDB = await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`)
+        console.log("Connecting to DB at:", process.env.MONGODB_URL);
+        
+        const connectDB = await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
 
-        console.log(`Connected to database: ${connectDB.connection.host}`)
+        console.log(`Connected to database: ${connectDB.connection.host}`);
+
+        // Start server only after successful DB connection
+        const PORT = process.env.PORT || 5000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+
     } catch (error) {
-        console.error('Connection failed ',error)
+        console.error("Connection failed", error);
+        process.exit(1); // Exit process with failure
     }
-}).then(()=>{
-    app.listen(process.env.PORT,()=>{
-        console.log('Server is running on port 5000')
-    })
-})()
+})();
