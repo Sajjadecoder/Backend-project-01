@@ -60,7 +60,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
     return await becrypt.compare(password, this.password);
 }
 userSchema.methods.generateAccessToken = function () {
-    jwt.sign({
+    return jwt.sign({
         username: this.username,
         email: this.email,
         fullname: this.fullname,
@@ -68,7 +68,7 @@ userSchema.methods.generateAccessToken = function () {
 
 }
 userSchema.methods.generateRefreshToken = function () {
-    jwt.sign({
+    return jwt.sign({
         username: this.username,
     }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRY });
 
